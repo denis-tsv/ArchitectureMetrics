@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -65,15 +64,15 @@ namespace ArchitectureMetrics
 																	x.GetMethods().All(m => BaseMethods.Contains(m.Name)));
 				assemblyStat.StaticClassesWithMethods = types.Count(x => x.IsClass && x.IsAbstract && x.IsSealed &&
 																	x.GetMethods().Any(m => !BaseMethods.Contains(m.Name)));
-				assemblyStat.Classes = types.Count(x => x.IsClass && !x.IsAbstract && !x.IsSealed);
 				assemblyStat.Structs = types.Count(x => x.IsValueType && !x.IsEnum);
 				assemblyStat.Enums = types.Count(x => x.IsEnum);
 				assemblyStat.Exceptions = types.Count(x => typeof(Exception).IsAssignableFrom(x));
 				assemblyStat.Events = types.Count(x => typeof(Delegate).IsAssignableFrom(x));
 				assemblyStat.EventArgs = types.Count(x => typeof(EventArgs).IsAssignableFrom(x));
 				assemblyStat.DTOs = types.Count(x => IsDtoType(x, entities));
-                
-                assemblyStat.TotalClasses = types.Length;
+
+				//Not anonymous 
+				assemblyStat.TotalClasses = types.Count(x => !x.Name.Contains('_') && !x.Name.Contains('<') && !x.Name.Contains('>'));
 
 				stats.Add(assemblyStat);
 			}
