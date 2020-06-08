@@ -5,9 +5,8 @@ namespace ArchitectureMetrics
     public class AssemblyStat
     {
         public string Name { get; set; }
-
         public double Instability => 1.0 * References / (References + Referenced);
-        public double Abstractness => 1.0 * (Interfaces + AbstractClasses + Exceptions + DTOs) / TotalClasses;
+        public double Abstractness { get; set; } 
         public double Distance => Math.Abs(Instability + Abstractness - 1);
 
         public int References { get; set; }
@@ -24,7 +23,5 @@ namespace ArchitectureMetrics
         public int Enums { get; set; }
         public int EventArgs { get; set; }
         public int TotalClasses { get; set; }
-
-        
     }
 }

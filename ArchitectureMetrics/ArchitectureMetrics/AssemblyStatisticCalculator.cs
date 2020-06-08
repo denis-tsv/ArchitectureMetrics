@@ -30,12 +30,12 @@ namespace ArchitectureMetrics
 	{
 		private static readonly HashSet<string> BaseMethods = new HashSet<string> { "ToString", "Equals", "GetHashCode", "GetType" };
 
-        public void Calculate(string path, string assemblyNamePrefix, Func<Type, bool> dtoCheckerFunc = null, string outputFilePath = "AssemblyStatistic.csv")
+        public void Calculate(string path, string assemblyNamePrefix, Func<Type, bool> dtoCheckerFunc = null, string outputFilePath = "AssemblyStatistic.csv", Func<AssemblyStat, double> abstractnessCalculator = null)
         {
-            Calculate(path, new[] {assemblyNamePrefix}, dtoCheckerFunc, outputFilePath);
+            Calculate(path, new[] {assemblyNamePrefix}, dtoCheckerFunc, outputFilePath, abstractnessCalculator);
         }
 
-		public void Calculate(string path, string[] assemblyNamePrefixes, Func<Type, bool> dtoCheckerFunc = null, string outputFilePath = "AssemblyStatistic.csv")
+		public void Calculate(string path, string[] assemblyNamePrefixes, Func<Type, bool> dtoCheckerFunc = null, string outputFilePath = "AssemblyStatistic.csv", Func<AssemblyStat, double> abstractnessCalculator = null)
         {
             var assemblies = assemblyNamePrefixes.SelectMany(x => Directory.EnumerateFiles(path, $"{x}*dll"))
                 .Select(Assembly.LoadFile);
@@ -84,6 +84,15 @@ namespace ArchitectureMetrics
 
 				//Not anonymous 
 				assemblyStat.TotalClasses = types.Count(x => !IsAnonymousType(x));
+
+				if (abstractnessCalculator != null)
+				{
+					assemblyStat.Abstractness = abstractnessCalculator(assemblyStat);
+				}
+				else
+				{
+					assemblyStat.Abstractness = 1.0 * (assemblyStat.Interfaces + assemblyStat.AbstractClasses + assemblyStat.Exceptions + assemblyStat.DTOs) / assemblyStat.TotalClasses;
+				}
 
 				stats.Add(assemblyStat);
 			}
